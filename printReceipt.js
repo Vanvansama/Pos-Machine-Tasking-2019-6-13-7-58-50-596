@@ -28,10 +28,11 @@ function isBarCodeValid(barcodes) {
     } else {
         return false;
     }
-    
+
 }
+
 function calculateTotalPrice(barcodes) {
-    var price = 0;
+    let price = 0;
     for (let i = 0; i < database.length; i++) {
         const data = database[i];
         barcodes.forEach(element => {
@@ -42,33 +43,35 @@ function calculateTotalPrice(barcodes) {
     }
     return price;
 }
+function countBarcodeNumber(barcodes) {
+    let newBarcodes = [];
+    let barcodeNum = [];
+    for (let i = 0; i < barcodes.length; i++) {
+        const barcode = barcodes[i];
+        if (newBarcodes.indexOf(barcode) >= 0) {
+            barcodeNum[newBarcodes.indexOf(barcode)]++;
+        } else {
+            newBarcodes.push(barcode);
+            barcodeNum.push(1);
+        }
+    }
+    return {barcodes:newBarcodes,barcodeNum:barcodeNum};
+}
 function createReceipt(barcodes) {
     if (isBarCodeValid(barcodes)) {
         const totalPrice = calculateTotalPrice(barcodes);
-        var Receipts = "Receipts\n------------------------------------------------------------\n";
-        var newBarcodes = [];
-        var barcodeNum = [];
-        for (let i = 0; i < barcodes.length; i++) {
-            const barcode = barcodes[i];
-            if (newBarcodes.indexOf(barcode)>=0) {
-                barcodeNum[newBarcodes.indexOf(barcode)]++;
-            } else {
-                newBarcodes.push(barcode);
-                barcodeNum.push(1);
-            }
-        }
-        // console.log(newBarcodes,barcodeNum)
-        for (let i = 0; i < newBarcodes.length; i++) {
-        const barcode = newBarcodes[i];
+        let Receipts = "Receipts\n------------------------------------------------------------\n";
+        const barcodeItem = countBarcodeNumber(barcodes);
+        for (let i = 0; i < barcodeItem.barcodes.length; i++) {
+            const barcode = barcodeItem.barcodes[i];
             for (let j = 0; j < database.length; j++) {
                 const data = database[j];
                 if (barcode === data.id) {
-                    Receipts += data.name+"\t\t\t"+data.price+"\t\t"+barcodeNum[i]+"\n";
+                    Receipts += data.name + "\t\t\t" + data.price + "\t\t" + barcodeItem.barcodeNum[i] + "\n";
                 }
             }
         }
-        Receipts += "------------------------------------------------------------\nPrice: "+totalPrice;
-        // console.log(Receipts)
+        Receipts += "------------------------------------------------------------\nPrice: " + totalPrice;
         return Receipts;
     }
     return null;
